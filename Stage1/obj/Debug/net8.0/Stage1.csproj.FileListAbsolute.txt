@@ -114,3 +114,4 @@ C:\Users\User\source\repos\Stage1\Stage1\bin\Debug\net8.0\ru\Microsoft.CodeAnaly
 C:\Users\User\source\repos\Stage1\Stage1\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\User\source\repos\Stage1\Stage1\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\User\source\repos\Stage1\Stage1\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\User\source\repos\Stage1\Stage1\obj\Debug\net8.0\Stage1.sourcelink.json

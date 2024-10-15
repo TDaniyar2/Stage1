@@ -1,8 +1,10 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Stage1;
+using Stage1.Data;
+using Stage1.Model;
 
-namespace Stage1
+namespace Stage1.Services
 {
     public static class OrderService
     {
@@ -66,7 +68,7 @@ namespace Stage1
         {
             using (var db = new DbTaskContext())
             {
-                var order = await db.Orders.FindAsync(id); 
+                var order = await db.Orders.FindAsync(id);
                 if (order != null)
                 {
                     await response.WriteAsJsonAsync(order);
@@ -99,8 +101,8 @@ namespace Stage1
                         if (order != null)
                         {
 
-                            order.Name = orderRequest.Name; 
-                            order.Description = orderRequest.Description; 
+                            order.Name = orderRequest.Name;
+                            order.Description = orderRequest.Description;
 
 
                             await db.SaveChangesAsync();
@@ -128,4 +130,3 @@ namespace Stage1
         }
     }
 }
-
