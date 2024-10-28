@@ -4,129 +4,48 @@ using Stage1;
 using Stage1.Data;
 using Stage1.Model;
 
+
 namespace Stage1.Services
 {
-    public static class OrderService
+    public class OrderService : IOrderService
     {
-        public async static Task CreateOrder(HttpResponse response, HttpRequest request)
+        private readonly IOrderRepository _orderRepository;
+
+        public OrderService(IOrderRepository orderRepository)
         {
-            try
-            {
-                var order = await request.ReadFromJsonAsync<Order>();
-                if (order != null)
-                {
-                    using (var db = new DbTaskContext())
-                    {
-                        db.Orders.Add(new Order { Name = order.Name, Description = order.Description });
-                        await db.SaveChangesAsync();
-                        await response.WriteAsJsonAsync(order);
-                        await db.Database.CurrentTransaction.CommitAsync();
-                    }
-                }
-                else
-                {
-                    throw new Exception("Некорректные данные");
-                }
-            }
-            catch (Exception)
-            {
-                response.StatusCode = 400;
-                await response.WriteAsJsonAsync(new { message = "Некорректные данные" });
-            }
+            _orderRepository = orderRepository;
         }
 
-        public async static Task DeleteOrder(Guid id, HttpResponse response)
+        public async Task<List<Order>> GetAllOrdersAsync()
         {
-            using (var db = new DbTaskContext())
-            {
-                var order = await db.Orders.FindAsync(id);
-                if (order != null)
-                {
-                    db.Orders.Remove(order);
-                    await db.SaveChangesAsync();
-                    await response.WriteAsJsonAsync(order);
-                }
-                else
-                {
-                    response.StatusCode = 404;
-                    await response.WriteAsJsonAsync(new { message = "Заказ не найден" });
-                }
-            }
+            return await _orderRepository.GetAllAsync();
         }
 
-        public async static Task GetAllOrders(HttpResponse response)
+        public async Task<Order?> GetOrderByIdAsync(Guid id)
         {
-            using (var db = new DbTaskContext())
-            {
-                var orders = db.Orders.ToList();
-
-                await response.WriteAsJsonAsync(orders);
-            }
+            return await _orderRepository.GetByIdAsync(id);
         }
 
-        public async static Task GetOrder(Guid id, HttpResponse response)
+        public async Task<Order> CreateOrderAsync(Order order)
         {
-            using (var db = new DbTaskContext())
-            {
-                var order = await db.Orders.FindAsync(id);
-                if (order != null)
-                {
-                    await response.WriteAsJsonAsync(order);
-                }
-                else
-                {
-                    response.StatusCode = 404;
-                    await response.WriteAsJsonAsync(new { message = "Заказ не найден" });
-                }
-            }
+            await _orderRepository.AddAsync(order);
+            return order;
         }
 
-        public async static Task UpdateOrder(HttpResponse response, HttpRequest request)
+        public async Task UpdateOrderAsync(Guid id, Order order)
         {
-            try
-            {
+            var existingOrder = await _orderRepository.GetByIdAsync(id);
+            if (existingOrder == null) throw new KeyNotFoundException("Order not found");
 
-                Order? orderRequest = await request.ReadFromJsonAsync<Order>();
+            existingOrder.Name = order.Name;
+            existingOrder.Description = order.Description;
+            await _orderRepository.UpdateAsync(existingOrder);
+        }
 
-                if (orderRequest != null)
-                {
-                    using (var db = new DbTaskContext())
-                    {
-
-                        var orders = await db.Orders.ToListAsync();
-
-
-                        var order = orders.FirstOrDefault(u => u.Id == orderRequest.Id);
-
-                        if (order != null)
-                        {
-
-                            order.Name = orderRequest.Name;
-                            order.Description = orderRequest.Description;
-
-
-                            await db.SaveChangesAsync();
-
-
-                            await response.WriteAsJsonAsync(order);
-                        }
-                        else
-                        {
-                            response.StatusCode = 404;
-                            await response.WriteAsJsonAsync(new { message = "Заказ не найден" });
-                        }
-                    }
-                }
-                else
-                {
-                    throw new Exception("Некорректные данные");
-                }
-            }
-            catch (Exception)
-            {
-                response.StatusCode = 400;
-                await response.WriteAsJsonAsync(new { message = "Некорректные данные" });
-            }
+        public async Task DeleteOrderAsync(Guid id)
+        {
+            await _orderRepository.DeleteAsync(id);
         }
     }
 }
+
