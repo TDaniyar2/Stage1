@@ -1,0 +1,6 @@
+@Delivery_HostAddress = http://localhost:5114
+
+GET {{Delivery_HostAddress}}/Model/DeliveryRequest/
+Accept: application/json
+
+###

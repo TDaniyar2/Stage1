@@ -5,6 +5,10 @@ using Stage1.Data;
 using Stage1.Model;
 using Microsoft.EntityFrameworkCore;
 using Stage1.Services;
+using MassTransit;
+using MassTransit.Transports;
+using Stage1.Consume;
+using Stage1.Publisher;
 
 namespace Stage1.Controllers
 {
@@ -13,10 +17,12 @@ namespace Stage1.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, IPublishEndpoint publishEndpoint)
         {
             _orderService = orderService;
+            _publishEndpoint = publishEndpoint;
         }
 
         [HttpGet]
@@ -37,11 +43,24 @@ namespace Stage1.Controllers
             return Ok(order);
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateOrder([FromBody] Order newOrder)
         {
-            var order = await _orderService.CreateOrderAsync(newOrder);
-            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
+
+            var savedOrder = await _orderService.CreateOrderAsync(newOrder);
+
+            
+            var orderCreatedEvent = new Order
+            {
+                Id = savedOrder.Id,
+                Name = savedOrder.Name,
+                Description = savedOrder.Description
+            };
+
+            
+            await _publishEndpoint.Publish(orderCreatedEvent);
+
+            return CreatedAtAction(nameof(GetOrder), new { id = savedOrder.Id }, savedOrder);
         }
 
         [HttpPut("{id:guid}")]

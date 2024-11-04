@@ -14,7 +14,6 @@ namespace Stage1.Data
             // Database.EnsureCreated(); 
         }
 
-        // Добавляем конструктор, принимающий DbContextOptions
         public DbTaskContext(DbContextOptions<DbTaskContext> options)
             : base(options)
         {

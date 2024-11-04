@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Stage1;
 using Stage1.Data;
@@ -10,6 +11,7 @@ namespace Stage1.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
+        
 
         public OrderService(IOrderRepository orderRepository)
         {

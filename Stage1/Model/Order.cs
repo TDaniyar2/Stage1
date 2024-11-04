@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Stage1.Model
 {
-    public class Order
+    public class Order : IOrder
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
